@@ -1,6 +1,6 @@
 OBJS:=$(wildcard *.c)
-main:$(OBJS)
+server:$(OBJS)
 	gcc $^ -o $@
 clean:
-	rm main
+	rm server
 

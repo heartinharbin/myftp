@@ -12,6 +12,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <signal.h>
+#include <sys/mman.h>
 typedef struct{
 	pid_t pid;
 	int fdw;//管道的写端

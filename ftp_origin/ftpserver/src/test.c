@@ -2,7 +2,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-
+/*
 int main(){
 	int fd = open("file1", O_RDWR);
 	struct stat buf;
@@ -10,3 +10,4 @@ int main(){
 	fstat(fd, &buf);
 	printf("size:%ld\n", buf.st_size);
 }
+*/

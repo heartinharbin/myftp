@@ -25,6 +25,10 @@ int recv_n(int sfd,char* buf,int len)
 	while(total<len)
 	{
 		ret=recv(sfd,buf+total,len-total,0);
+		if(-1 == ret){
+			perror("recv error");
+			return -1;
+		}
 		total=total+ret;
 	}
 	return 0;

@@ -8,6 +8,10 @@ int send_n(int sfd,char* buf,int len)
 	while(total<len)
 	{
 		ret=send(sfd,buf+total,len-total,0);
+		if(-1 == ret){
+			perror("send close");
+			return -1;
+		}
 		total=total+ret;
 	}
 }
@@ -19,6 +23,10 @@ int recv_n(int sfd,char* buf,int len)
 	while(total<len)
 	{
 		ret=recv(sfd,buf+total,len-total,0);
+		if(-1 == ret){
+			perror("revc close");
+			return -1;
+		}
 		total=total+ret;
 	}
 }
