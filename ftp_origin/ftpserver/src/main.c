@@ -84,6 +84,7 @@ int main(int argc,char* argv[])
 				}
 				for(j=0;j<num;j++)
 				{
+					printf("j=%d, num=%d\n", j, num);
 					if(p[j].fdw==evs[i].data.fd)
 					{
 						read(p[j].fdw,&flag,sizeof(flag));
