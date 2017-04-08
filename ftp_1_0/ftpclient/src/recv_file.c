@@ -16,8 +16,8 @@ void recv_file(int sfd,  char *filename){
     if(-1==fd)
     {
         perror("open");
-        close(sfd);
-        return -1;
+       // close(sfd);
+        return;
     }
 
 	recv_n(sfd, &len, 4);

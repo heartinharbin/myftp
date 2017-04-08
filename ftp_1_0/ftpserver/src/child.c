@@ -26,6 +26,78 @@ void child_handle(int fdr)
 		sscanf(ip_port, "%s : %s", ip, port);
 		printf("ip=%s port=%s\n", ip, port);
 		//	hand_request(new_fd);//发送文件函数
+
+enrollbefore:
+		//用户登录注册模块
+		while(1){
+			sizeof(buf, sizeof(buf));
+			recv_n(new_fd, &len, 4);
+			if(1 == len){
+			//用户直接登录
+				goto recvusername;	//break也可以的
+			}else if(2 == len){
+enrollusername:
+				bzero(username, sizeof(username));
+				bzero(salt, sizeof(salt));
+				bzero(filepath, sizeof(filepath));
+				bzero(passwd, sizeof(passwd));
+				bzero(&t, sizeof(t));
+				recv_n(new_fd, &len, 4);
+				recv_n(new_fd, username, len);
+				printf("接收到用户名：%s\n", username);
+				find_user_by_name(username, &uid, NULL, NULL, NULL);
+				if(-1 == uid){
+					//用户名不存在，可以注册
+					len = 0;
+					send_n(new_fd, &len, 4);
+					
+					//发送salt
+					bzero(buf, sizeof(buf));
+					get_rand_str(buf,8);
+					sprintf(salt, "$6$%s", buf);
+					printf("salt:%s生成\n", salt);
+					bzero(&t, sizeof(t));
+					t.len = strlen(salt);
+					printf("发送salt长度:%d\n", t.len);
+					strcpy(t.buf, salt);
+					printf("小火车中salt内容:%s\n", t.buf);
+					send_n(new_fd, &t, 4+t.len);
+
+					//接收反馈
+					recv_n(new_fd, &len, 4);
+					printf("反馈len：%d\n", len);
+					if(0 == len){
+						//用户2次密码匹配，接收用户的passwd
+						recv_n(new_fd, &len, 4);
+						recv_n(new_fd, passwd, len);
+						sprintf(filepath, "/home/mustafa/ftpfile/%s", username);
+						mkdir(filepath, 0777);
+						printf("filepath:%s 目录创建成功\n", filepath);
+						insert_user(username, salt, passwd, filepath);
+						len = 520;
+						send_n(new_fd, &len, 4);
+						goto recvusername;
+					}else if(-1 == len){
+						//用户2次密码不匹配
+						goto  enrollusername;						
+					}
+					
+				}else{
+					//用户名已经存在，不能使用
+					len = -1;
+					send_n(new_fd, &len, 4);
+					goto  enrollusername;
+				}
+			}else if(3 == len){
+				goto logout;
+			}else if(-1 == len){
+				goto enrollbefore;
+			}
+
+		}	
+
+
+
 		//登录模块
 		while(1){	
 recvusername:	//接收客户端发的登录用户名
@@ -138,10 +210,13 @@ recvusername:	//接收客户端发的登录用户名
 				t.len = strlen(buf);
 				strcpy(t.buf, buf);
 				send_n(new_fd, &t, 4+t.len);	 
-            }
+            }else if(!strncmp("exit", buf, 4) || !strncmp("quit", buf, 4)){
+				goto logout;	
+			}
 			
 		//	send_n(new_fd, "iloveyang", 9);	
 		}
+logout:
 		write(fdr,&flag,sizeof(flag));
 	}
 }

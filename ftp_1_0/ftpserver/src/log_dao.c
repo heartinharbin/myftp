@@ -18,7 +18,7 @@ void  insert_log(int uid, char *ip, int port, char *operate)
         printf("insert success\n");
     }
     mysql_close(conn);
-    return 0;
+    return;
 }
 /*
 int main(){

@@ -77,6 +77,97 @@ int main(int argc,char* argv[])
 	char username[50] = {0};
 	char salt[50] = {0};
 	char passwd[128] = {0};
+	char repasswd[128] = {0};
+	//客户选择登录或者注册
+	
+	int select_num;
+enrollbefore:
+	while(1){
+
+		printf("\t\t\t\t客户登录\n\n");
+		printf("\t\t1：用户登录\n");
+		printf("\t\t2：用户注册\n");
+		printf("\t\t3：用户退出\n");
+		printf("请输入你的数字编号后回车：");
+		scanf("%d", &select_num);
+		printf("select_num:%d\n", select_num);
+		switch(select_num){
+			case 1: 
+					len = 1;
+					send_n(sfd, &len, 4);
+					goto printusername;
+					break;
+			case 2:
+					len = 2;
+					send_n(sfd, &len, 4);
+enrollusername:
+					printf("请输入你的用户名：");
+					scanf("%s", username);
+					bzero(&t, sizeof(t));
+					t.len = strlen(username);
+					strcpy(t.buf, username);
+					send_n(sfd, &t, 4+t.len);
+
+					//接收服务器端的反馈
+					recv_n(sfd, &len, 4);
+					printf("接收反馈的len:%d\n", len);
+					if(-1 == len){
+						//用户名存在，不能注册
+						goto enrollusername;
+					}else if(0 == len){
+						//可以注册
+						recv_n(sfd, &len, 4);
+						printf("接收salt长度:%d\n", len);
+						recv_n(sfd, salt, len);
+						printf("接收salt:%s\n", salt);						
+						strcpy(passwd, getpass("请输入密码:"));
+						strcpy(repasswd, getpass("请确认密码："));
+						if(0 == strcmp(passwd, repasswd)){
+							//2次密码相同
+							printf("2次密码相同\n");
+							len = 0;
+							send_n(sfd, &len, 4);
+							printf("1\n");	
+							bzero(&t, sizeof(t));
+							printf("passwd:%s salt:%s\n", passwd, salt);
+							printf("crypt:%s\n", crypt(passwd, salt));
+							strcpy(t.buf, crypt(passwd,salt));
+							printf("2\n");
+							t.len = strlen(t.buf);
+							send_n(sfd, &t, 4+t.len);
+							printf("3\n");
+							recv_n(sfd, &len, 4);
+							printf("注册成功，转向登录界面\n");
+							goto printusername;
+						}else{
+							//2次密码不同
+							len = -1;
+							send_n(sfd, &len, 4);
+							goto  enrollusername;
+						}
+					}
+					
+
+
+					break;
+			case 3:
+					len = 3;
+					send_n(sfd, &len, 4);
+					goto logout;				
+					break;
+			defalut:
+					len = -1;
+					send_n(sfd, &len, 4);
+					printf("输入编号错误！\n");
+					goto enrollbefore;
+					break;
+		}
+	}
+
+	bzero(username, sizeof(username));
+	bzero(salt, sizeof(salt));
+	bzero(passwd, sizeof(passwd));
+
 
 //客户登录验证：	
 	while(1){
@@ -177,6 +268,13 @@ printusername:
 			recv_n(sfd, &len, sizeof(len));
 			recv_n(sfd, buf, len);
 			puts(buf);
+		}else if(!strncmp("exit", cmd, 4) || !strncmp("quit", cmd, 4)){
+            bzero(&t, sizeof(t));
+            t.len = strlen(cmd);
+            strcpy(t.buf, cmd);
+            send_n(sfd, &t, 4+t.len);
+
+			goto logout;
 		}
 			
 	}
@@ -221,5 +319,7 @@ printusername:
 
 	close(fd);
 */
+logout:
+
 	close(sfd);
 }
