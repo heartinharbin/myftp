@@ -14,16 +14,20 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <crypt.h>
+#include <sys/sendfile.h>
 #define IP_CONF "ip"
 #define PORT_CONF "port"
 
+#define MAXBUFSIZE 10000
 int send_n(int sfd,void* buf,int len);
 int recv_n(int sfd,void* buf,int len);
-void recv_file(int sfd,  char *filename);
+int sendfile_n(int sfd, int fd, off_t *buf, off_t len);
+void recv_file(int sfd, char *filename);
+int send_file(int sfd, char *filename);
 
 typedef struct{
     int len;//控制数据
-    char buf[1000];//内容存储
+    char buf[MAXBUFSIZE];//内容存储
 }train,*ptrain;
 
 #endif

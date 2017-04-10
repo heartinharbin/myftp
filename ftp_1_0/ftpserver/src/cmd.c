@@ -46,7 +46,7 @@ void  myls(char *lspath, char *retbuf){
 //		strftime(timebuf, sizeof(timebuf), "%b %d %H:%M",ptminfo);
 //		printf("%3ld %s %s %8ld %s %-s\n",buf.st_nlink,getpwuid(buf.st_uid)->pw_name,getgrgid(buf.st_gid)->gr_name,buf.st_size,timebuf,p->d_name);
 		bzero(tmp, sizeof(tmp));
-		sprintf(tmp, "%c %s\n", filetype_sets[filetype], p->d_name);
+		sprintf(tmp, "%c %15s %15ld\n", filetype_sets[filetype], p->d_name, buf.st_size);
 		strcat(retbuf, tmp);
 	}
 	closedir(pd);

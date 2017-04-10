@@ -65,6 +65,6 @@ void recv_fd(int fdr,int* fd, char *ip_port)
 	}
 	*fd=*(int*)CMSG_DATA(cmsg);
 	strcpy(ip_port, msg.msg_iov[0].iov_base);
-	printf("ip:port=%s\n", msg.msg_iov[0].iov_base);
+//	printf("ip:port=%s\n", msg.msg_iov[0].iov_base);
 }
 
